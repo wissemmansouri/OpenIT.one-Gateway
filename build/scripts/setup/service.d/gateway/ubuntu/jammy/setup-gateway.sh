@@ -1,1 +1,1 @@
-
+../setup-gateway.sh
