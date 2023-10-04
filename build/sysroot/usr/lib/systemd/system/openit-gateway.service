@@ -1,1 +1,13 @@
+[Unit]
+After=network.target
+Description=OpenIT.one Gateway
 
+[Service]
+ExecStartPre=/usr/bin/openit-gateway -v
+ExecStart=/usr/bin/openit-gateway
+PIDFile=/var/run/openit/gateway.pid
+Restart=always
+Type=notify
+
+[Install]
+WantedBy=multi-user.target
