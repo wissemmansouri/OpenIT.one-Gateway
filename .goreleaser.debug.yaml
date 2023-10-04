@@ -1,0 +1,162 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+project_name: openit-gateway
+before:
+  hooks:
+    - go generate
+    - go run github.com/google/go-licenses@latest check . --disallowed_types=restricted
+    - go mod tidy
+    - go test -race -v ./...
+builds:
+  - id: openit-gateway-amd64
+    binary: build/sysroot/usr/bin/openit-gateway
+    env:
+      - CC=x86_64-linux-gnu-gcc
+    gcflags:
+      - all=-N -l
+    ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+      - osusergo
+    goos:
+      - linux
+    goarch:
+      - amd64
+  - id: openit-gateway-arm64
+    binary: build/sysroot/usr/bin/openit-gateway
+    env:
+      - CC=aarch64-linux-gnu-gcc
+    gcflags:
+      - all=-N -l
+    ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+      - osusergo
+    goos:
+      - linux
+    goarch:
+      - arm64
+  - id: openit-gateway-arm-7
+    binary: build/sysroot/usr/bin/openit-gateway
+    env:
+      - CC=arm-linux-gnueabihf-gcc
+    gcflags:
+      - all=-N -l
+    ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+      - osusergo
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - "7"
+  - id: openit-gateway-migration-tool-amd64
+    binary: build/sysroot/usr/bin/openit-gateway-migration-tool
+    main: ./cmd/migration-tool
+    env:
+      - CC=x86_64-linux-gnu-gcc
+    gcflags:
+      - all=-N -l
+    ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+      - osusergo
+    goos:
+      - linux
+    goarch:
+      - amd64
+  - id: openit-gateway-migration-tool-arm64
+    binary: build/sysroot/usr/bin/openit-gateway-migration-tool
+    main: ./cmd/migration-tool
+    env:
+      - CC=aarch64-linux-gnu-gcc
+    gcflags:
+      - all=-N -l
+    ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+      - osusergo
+    goos:
+      - linux
+    goarch:
+      - arm64
+  - id: openit-gateway-migration-tool-arm-7
+    binary: build/sysroot/usr/bin/openit-gateway-migration-tool
+    main: ./cmd/migration-tool
+    env:
+      - CC=arm-linux-gnueabihf-gcc
+    gcflags:
+      - all=-N -l
+    ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+      - osusergo
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - "7"
+archives:
+  - name_template: >-
+      {{ .Os }}-{{- if eq .Arch "arm" }}arm-7{{- else }}{{ .Arch }}{{- end }}-{{ .ProjectName }}-v{{ .Version }}
+    id: casaos-gateway
+    builds:
+      - openit-gateway-amd64
+      - openit-gateway-arm64
+      - openit-gateway-arm-7
+    files:
+      - build/**/*
+  - name_template: >-
+      {{ .Os }}-{{- if eq .Arch "arm" }}arm-7{{- else }}{{ .Arch }}{{- end }}-{{ .ProjectName }}-migration-tool-v{{ .Version }}
+    id: openit-gateway-migration-tool
+    builds:
+      - openit-gateway-migration-tool-amd64
+      - openit-gateway-migration-tool-arm64
+      - openit-gateway-migration-tool-arm-7
+    files:
+      - build/sysroot/etc/**/*
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ incpatch .Version }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+release:
+  github:
+    owner: wissemmansouri
+    name: OpenIT.one-Gateway
+  draft: true
+  prerelease: auto
+  mode: replace
+  name_template: "v{{ .Version }}"
