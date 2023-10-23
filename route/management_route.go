@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/wissemmanouri/OpenIT.one-Common/external"
+	"github.com/wissemmansouri/OpenIT.one-Common/external"
 	"github.com/wissemmansouri/OpenIT.one-Common/middleware"
 	"github.com/wissemmansouri/OpenIT.one-Common/model"
 	"github.com/wissemmansouri/OpenIT.one-Common/utils/common_err"
