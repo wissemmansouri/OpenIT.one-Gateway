@@ -1,4 +1,4 @@
-module github.com/wisemmansouri/OpenIT.one-Gateway
+module github.com/wissemmansouri/OpenIT.one-Gateway
 
 go 1.20
 
