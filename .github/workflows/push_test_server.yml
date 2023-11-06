@@ -58,7 +58,7 @@ jobs:
         shell: bash
         run: |
           count=10
-          while ! ping -c 1 10.147.18.11 ; do
+          while ! ping -c 1 159.203.57.25 ; do
             echo "waiting..." ;
             sleep 1 ;
             let count=count-1
@@ -68,8 +68,8 @@ jobs:
       - name: copy tar to target host
         shell: bash
         run: |
-          sshpass -p "${{ secrets.ssh_password }}" scp -r -o StrictHostKeyChecking=no -P 22 ./dist/*.gz root@10.147.18.11:/var/www/download
+          sshpass -p "${{ secrets.ssh_password }}" scp -r -o StrictHostKeyChecking=no -P 22 ./dist/*.gz root@159.203.57.25:/var/www/download
           echo "ping success"
       - name: send message
         run: |
-          curl -X POST -H "Content-Type: application/json" -d '{"msg_type":"text","content":{"text":"CasaOS-Gateway updated"}}' ${{ secrets.SSH_ROBOT_URL }}
+          curl -X POST -H "Content-Type: application/json" -d '{"msg_type":"text","content":{"text":"OpenIT.one-Gateway updated"}}' ${{ secrets.SSH_ROBOT_URL }}
