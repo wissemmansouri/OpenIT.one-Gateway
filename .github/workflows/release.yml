@@ -1,0 +1,66 @@
+name: goreleaser
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+permissions:
+  contents: write
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install dependencies for cross-compiling
+        run: |
+          sudo apt update
+          sudo apt-get --no-install-recommends --yes install \
+            upx libc6-dev-amd64-cross \
+            gcc-aarch64-linux-gnu libc6-dev-arm64-cross \
+            gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Fetch all tags
+        run: git fetch --force --tags
+      - name: Get version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs/tags/}
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.20"
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          # Votre clé GoReleaser Pro, si vous utilisez la distribution 'goreleaser-pro'
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get --no-install-recommends --yes install awscli
+      - name: Upload to DigitalOcean Spaces
+        id: upload_to_spaces
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.DOS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.DOS_KEY_SECRET }}
+          aws configure set default.region us-east-1  # Remplacez us-east-1 par votre région
+          aws configure set s3.endpoint_url https://openit.nyc3.digitaloceanspaces.com
+          
+          aws s3 cp dist/checksums.txt s3://openit/wissemmansouri/OpenIT.one-Gateway/releases/download/${{ steps.get_version.outputs.VERSION }}/checksums.txt
+          aws s3 cp dist/linux-arm-7-openit-gateway-${{ steps.get_version.outputs.VERSION }}.tar.gz s3://openit/wissemmansouri/OpenIT.one-Gateway/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm-7-openit-gateway-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          aws s3 cp dist/linux-arm64-openit-gateway-${{ steps.get_version.outputs.VERSION }}.tar.gz s3://openit/wissemmansouri/OpenIT.one-Gateway/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm64-openit-gateway-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          aws s3 cp dist/linux-amd64-openit-gateway-${{ steps.get_version.outputs.VERSION }}.tar.gz s3://openit/wissemmansouri/OpenIT.one-Gateway/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-amd64-openit-gateway-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          aws s3 cp dist/linux-arm-7-openit-gateway-migration-tool-${{ steps.get_version.outputs.VERSION }}.tar.gz s3://openit/wissemmansouri/OpenIT.one-Gateway/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm-7-openit-gateway-migration-tool-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          aws s3 cp dist/linux-arm64-openit-gateway-migration-tool-${{ steps.get_version.outputs.VERSION }}.tar.gz s3://openit/wissemmansouri/OpenIT.one-Gateway/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm64-openit-gateway-migration-tool-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          aws s3 cp dist/linux-amd64-openit-gateway-migration-tool-${{ steps.get_version.outputs.VERSION }}.tar.gz s3://openit/wissemmansouri/OpenIT.one-Gateway/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-amd64-openit-gateway-migration-tool-${{ steps.get_version.outputs.VERSION }}.tar.gz
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DOS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DOS_KEY_SECRET }}
