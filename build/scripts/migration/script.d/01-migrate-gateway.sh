@@ -63,8 +63,8 @@ __get_download_domain(){
     if [ "${region}" = "" ]; then
        region=$(curl --connect-timeout 2 -s https://ifconfig.io/country_code || echo "")
     fi
-    if [[ "${region}" = "China" ]] || [[ "${region}" = "CN" ]]; then
-        echo "https://openit.oss-cn-shanghai.aliyuncs.com/"
+    if [[ "${region}" = "Tunisia" ]] || [[ "${region}" = "TN" ]]; then
+        echo "https://openit.nyc3.digitaloceanspaces.com"
     else
         echo "https://github.com/"
     fi
