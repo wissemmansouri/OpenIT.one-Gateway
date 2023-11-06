@@ -1,7 +1,6 @@
 [Unit]
 After=network.target
 After=openit-installer.service
-Requires=openit-installer.service
 Description=OpenIT.one Gateway
 
 [Service]
